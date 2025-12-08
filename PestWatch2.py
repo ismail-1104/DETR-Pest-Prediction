@@ -2,9 +2,21 @@ from ultralytics import YOLO
 import os
 import glob
 
+# Load YOLO model once at module import (not on every request)
+_model = None
+
+def get_model():
+    """Lazy load the YOLO model - loads only once and reuses"""
+    global _model
+    if _model is None:
+        print("Loading YOLO model...")
+        _model = YOLO("best.pt")
+        print("YOLO model loaded successfully")
+    return _model
+
 def predict_and_return_output_path(image_path):
-    # Initialize YOLO model
-    model = YOLO("best.pt")
+    # Get the preloaded model
+    model = get_model()
 
     # Predict using the model
     output = model.predict(image_path, save=True, save_txt=True)
@@ -43,8 +55,8 @@ def pestwatch_yolo(image_path):
     ]
     
     try:
-        # Initialize YOLO model
-        model = YOLO("best.pt")
+        # Get the preloaded YOLO model (loaded once at startup)
+        model = get_model()
         
         # Predict using the model and save annotated image
         results = model.predict(image_path, save=True, save_txt=True, conf=0.25)
