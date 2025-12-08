@@ -8,8 +8,26 @@ from week import predict_week
 
 app = Flask(__name__)
 
-# Configure CORS - Allow all origins
-CORS(app)
+# Configure CORS - Allow all origins with explicit configuration
+CORS(app, resources={
+    r"/api/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"],
+    },
+    r"/runs/*": {
+        "origins": "*",
+        "methods": ["GET", "OPTIONS"],
+    }
+})
+
+# Add CORS headers to all responses
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    return response
 
 # Configuration for file uploads
 UPLOAD_FOLDER = 'static/uploads'
@@ -22,6 +40,12 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Health check endpoint
+@app.route('/api/health', methods=['GET'])
+@cross_origin()
+def health_check():
+    return jsonify({"status": "ok", "message": "Backend is running"}), 200
 
 # API endpoints for Next.js frontend
 @app.route('/api/pestwatch_yolo', methods=['POST', 'OPTIONS'])
