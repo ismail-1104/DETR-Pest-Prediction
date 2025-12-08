@@ -1,5 +1,5 @@
 from flask import Flask, request, send_file, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
 import os
 from PestWatch2 import pestwatch_yolo
@@ -8,12 +8,8 @@ from week import predict_week
 
 app = Flask(__name__)
 
-# Configure CORS - Allow all Vercel domains and production frontend
-CORS(app, 
-     resources={r"/api/*": {"origins": "*"}},
-     allow_headers=["Content-Type"],
-     methods=["GET", "POST", "OPTIONS"],
-     supports_credentials=False)
+# Configure CORS - Allow all origins
+CORS(app)
 
 # Configuration for file uploads
 UPLOAD_FOLDER = 'static/uploads'
@@ -28,7 +24,8 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # API endpoints for Next.js frontend
-@app.route('/api/pestwatch_yolo', methods=['POST'])
+@app.route('/api/pestwatch_yolo', methods=['POST', 'OPTIONS'])
+@cross_origin()
 def api_pestwatch_yolo():
     try:
         if 'image' not in request.files:
@@ -63,7 +60,8 @@ def api_pestwatch_yolo():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/pestpred', methods=['POST'])
+@app.route('/api/pestpred', methods=['POST', 'OPTIONS'])
+@cross_origin()
 def api_pestpred():
     try:
         data = request.get_json()
@@ -83,7 +81,8 @@ def api_pestpred():
         error_msg = "Model compatibility issue. Please retrain the model with current scikit-learn version."
         return jsonify({"error": error_msg, "details": str(e)}), 500
 
-@app.route('/api/predict_week', methods=['POST'])
+@app.route('/api/predict_week', methods=['POST', 'OPTIONS'])
+@cross_origin()
 def api_predict_week():
     try:
         data = request.get_json()
@@ -100,6 +99,7 @@ def api_predict_week():
 
 # Serve static files (runs folder)
 @app.route('/runs/<path:filename>')
+@cross_origin()
 def serve_runs(filename):
     runs_dir = os.path.join(os.getcwd(), 'runs')
     return send_file(os.path.join(runs_dir, filename))
