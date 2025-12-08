@@ -8,13 +8,12 @@ from week import predict_week
 
 app = Flask(__name__)
 
-# Configure CORS - Update with your frontend URL after deployment
-allowed_origins = [
-    "http://localhost:3000",
-    "https://*.vercel.app",  # Vercel deployment
-    os.environ.get("FRONTEND_URL", "")  # Production frontend URL
-]
-CORS(app, origins=allowed_origins, supports_credentials=True)
+# Configure CORS - Allow all Vercel domains and production frontend
+CORS(app, 
+     resources={r"/api/*": {"origins": "*"}},
+     allow_headers=["Content-Type"],
+     methods=["GET", "POST", "OPTIONS"],
+     supports_credentials=False)
 
 # Configuration for file uploads
 UPLOAD_FOLDER = 'static/uploads'
