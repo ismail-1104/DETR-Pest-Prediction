@@ -51,20 +51,34 @@ def health_check():
 @app.route('/api/pestwatch_yolo', methods=['POST', 'OPTIONS'])
 @cross_origin()
 def api_pestwatch_yolo():
+    # Handle OPTIONS preflight request
+    if request.method == 'OPTIONS':
+        return jsonify({"status": "ok"}), 200
+    
     try:
+        print(f"Received request: {request.method}")
+        print(f"Files: {request.files}")
+        
         if 'image' not in request.files:
+            print("Error: No image in request")
             return jsonify({"error": "No image provided"}), 400
         
         photo = request.files['image']
+        print(f"Image filename: {photo.filename}")
+        
         if photo.filename == '' or not allowed_file(photo.filename):
+            print("Error: Invalid filename")
             return jsonify({"error": "Invalid file"}), 400
         
         filename = secure_filename(photo.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        print(f"Saving to: {filepath}")
         photo.save(filepath)
         
+        print("Calling pestwatch_yolo...")
         # Use YOLO-based pest detection
         pest_class, suggestion, annotated_image = pestwatch_yolo(filepath)
+        print(f"Detection complete: {pest_class[:50]}...")
         
         # Convert path to proper format for web access
         if annotated_image:
@@ -82,7 +96,13 @@ def api_pestwatch_yolo():
             "annotated_image": relative_path
         })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"ERROR: {error_details}")
+        return jsonify({
+            "error": str(e),
+            "traceback": error_details
+        }), 500
 
 @app.route('/api/pestpred', methods=['POST', 'OPTIONS'])
 @cross_origin()
