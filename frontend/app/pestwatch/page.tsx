@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Upload, Bug, Download, Loader2, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { getApiUrl, fetchWithTimeout } from "@/lib/api";
 
 export default function PestWatch() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -63,19 +64,22 @@ export default function PestWatch() {
     formData.append("image", selectedFile);
 
     try {
-      const response = await fetch("/api/pestwatch_yolo", {
+      const endpoint = getApiUrl('/api/pestwatch_yolo');
+      
+      const response = await fetchWithTimeout(endpoint, {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error("Detection failed");
+        const errorText = await response.text();
+        throw new Error(`Detection failed: ${errorText}`);
       }
 
       const data = await response.json();
       setResult(data);
-    } catch (err) {
-      setError("Failed to detect pests. Please try again.");
+    } catch (err: any) {
+      setError(err.message || "Failed to detect pests. Please try again.");
       console.error(err);
     } finally {
       setLoading(false);

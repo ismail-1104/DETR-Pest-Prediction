@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Calendar, Loader2, AlertCircle, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
+import { getApiUrl } from "@/lib/api";
 
 export default function WeeklyPrediction() {
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,9 @@ export default function WeeklyPrediction() {
     setResult("");
 
     try {
-      const response = await fetch("/api/predict_week", {
+      const endpoint = getApiUrl('/api/predict_week');
+
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

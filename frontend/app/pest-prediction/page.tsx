@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { LineChart, Loader2, AlertCircle, Bug } from "lucide-react";
 import { motion } from "framer-motion";
+import { getApiUrl } from "@/lib/api";
 
 export default function PestPrediction() {
   const [loading, setLoading] = useState(false);
@@ -41,7 +42,9 @@ export default function PestPrediction() {
     setResult("");
 
     try {
-      const response = await fetch("/api/pestpred", {
+      const endpoint = getApiUrl('/api/pestpred');
+
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
