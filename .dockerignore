@@ -26,8 +26,9 @@ frontend/
 # Documentation
 README.md
 
-# Local uploads (will be created at runtime)
-static/uploads/*
+# Railway config (not needed for HF)
+railway.json
+runtime.txt
 
 # OS files
 .DS_Store
