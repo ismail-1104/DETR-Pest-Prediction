@@ -1,0 +1,38 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Model runs (these are outputs, not needed for deployment)
+runs/
+
+# Frontend (not needed in backend deployment)
+frontend/
+
+# Documentation
+README.md
+
+# Local uploads (will be created at runtime)
+static/uploads/*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+*.test.py
+test_*.py
